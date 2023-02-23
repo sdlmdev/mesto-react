@@ -1,0 +1,15 @@
+.cards__text {
+  padding: 0;
+  margin: 18px 20px 24px;
+  height: 37px;
+  max-width: 246px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media screen and (max-width: 596px) {
+  .cards__text {
+    margin: 21px 21px 22px;
+  }
+}  
