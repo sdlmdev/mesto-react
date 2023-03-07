@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { configApi } from "../utils/Api";
 import Card from "./Card";
+import CurrentUserContext from "../contexts/CurrentUserContext";
+import { useContext } from "react";
 
 function Main({
   onEditAvatar,
@@ -8,37 +8,17 @@ function Main({
   onAddPlace,
   onCardClick,
   onDeleteClick,
+  cards,
+  onCardLike,
 }) {
-  const [userName, setUserName] = useState("");
-  const [userDescription, setUserDescription] = useState("");
-  const [userAvatar, setUserAvatar] = useState("");
-  const [cards, setCards] = useState([]);
-
-  useEffect(() => {
-    Promise.all([configApi.getUserData(), configApi.getInitialCards()])
-      .then(([userData, cardsData]) => {
-        setUserName(userData.name);
-        setUserDescription(userData.about);
-        setUserAvatar(userData.avatar);
-        setCards(
-          cardsData.map((card) => ({
-            likes: card.likes,
-            link: card.link,
-            name: card.name,
-            owner: card.owner,
-            _id: card._id,
-          }))
-        );
-      })
-      .catch((err) => console.log(err));
-  }, []);
+  const currentUser = useContext(CurrentUserContext);
 
   return (
     <main className="main">
       <section className="profile">
         <div className="profile__avatar-area">
           <img
-            src={userAvatar}
+            src={currentUser.avatar}
             className="profile__avatar"
             alt="Аватар профиля"
           />
@@ -49,13 +29,13 @@ function Main({
           ></button>
         </div>
         <div className="profile__info">
-          <h1 className="profile__name">{userName}</h1>
+          <h1 className="profile__name">{currentUser.name}</h1>
           <button
             className="profile__editor"
             type="button"
             onClick={onEditProfile}
           ></button>
-          <p className="profile__description">{userDescription}</p>
+          <p className="profile__description">{currentUser.about}</p>
         </div>
         <button
           className="profile__add"
@@ -70,6 +50,7 @@ function Main({
             card={card}
             onCardClick={onCardClick}
             onDeleteClick={onDeleteClick}
+            onCardLike={onCardLike}
           />
         ))}
       </section>
