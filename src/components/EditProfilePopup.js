@@ -1,57 +1,29 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import PopupWithForm from "./PopupWithForm";
 import CurrentUserContext from "../contexts/CurrentUserContext";
+import { useFormWithValidation } from "../hooks/useFormWithValidation";
 
 function EditProfilePopup({ isOpen, onClose, onUpdateUser, isLoading }) {
   const currentUser = useContext(CurrentUserContext);
-
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-
-  const [isInputValidationName, setIsInputValidationName] = useState(false);
-  const [errorMessageName, setErrorMessageName] = useState("");
-  const [isInputValidationAbout, setIsInputValidationAbout] = useState(false);
-  const [errorMessageAbout, setErrorMessageAbout] = useState("");
-
-  function handleInputChangeName(e) {
-    setName(e.target.value);
-    if (e.target.validity.valid) {
-      setIsInputValidationName(true);
-      setErrorMessageName("");
-    } else {
-      setIsInputValidationName(false);
-      setErrorMessageName(e.target.validationMessage);
-    }
-  }
-
-  function handleInputChangeAbout(e) {
-    setDescription(e.target.value);
-    if (e.target.validity.valid) {
-      setIsInputValidationAbout(true);
-      setErrorMessageAbout("");
-    } else {
-      setIsInputValidationAbout(false);
-      setErrorMessageAbout(e.target.validationMessage);
-    }
-  }
+  const { values, handleInputChange, errors, isValid, resetForm, setValues } =
+    useFormWithValidation();
 
   function handleSubmit(e) {
     e.preventDefault();
 
     onUpdateUser({
-      name,
-      about: description,
+      name: values.username,
+      about: values.description,
     });
   }
 
   useEffect(() => {
-    setErrorMessageName("");
-    setIsInputValidationName(false);
-    setErrorMessageAbout("");
-    setIsInputValidationAbout(false);
-    setName(currentUser.name);
-    setDescription(currentUser.about);
-  }, [currentUser, isOpen]);
+    resetForm();
+    setValues({
+      username: currentUser.name,
+      description: currentUser.about,
+    });
+  }, [isOpen, currentUser, resetForm, setValues]);
 
   return (
     <PopupWithForm
@@ -64,12 +36,12 @@ function EditProfilePopup({ isOpen, onClose, onUpdateUser, isLoading }) {
       titleClass=""
       buttonText={isLoading ? "Сохранение..." : "Сохранить"}
       onSubmit={handleSubmit}
-      buttonStatus={isInputValidationName || isInputValidationAbout}
+      buttonStatus={isValid}
     >
       <input
         type="text"
         className={`popup__input popup__input_content_username ${
-          !errorMessageName ? "" : "popup__input_type_error"
+          !errors.username ? "" : "popup__input_type_error"
         }`}
         name="username"
         placeholder="Имя"
@@ -77,16 +49,16 @@ function EditProfilePopup({ isOpen, onClose, onUpdateUser, isLoading }) {
         maxLength="40"
         required
         id="username-input"
-        value={name || ""}
-        onChange={handleInputChangeName}
+        value={values.username || ""}
+        onChange={handleInputChange}
       />
       <span className="popup__input-error username-input-error">
-        {errorMessageName}
+        {errors.username}
       </span>
       <input
         type="text"
         className={`popup__input popup__input_content_description ${
-          !errorMessageAbout ? "" : "popup__input_type_error"
+          !errors.description ? "" : "popup__input_type_error"
         }`}
         name="description"
         placeholder="Описание"
@@ -94,11 +66,11 @@ function EditProfilePopup({ isOpen, onClose, onUpdateUser, isLoading }) {
         maxLength="200"
         required
         id="description-input"
-        value={description || ""}
-        onChange={handleInputChangeAbout}
+        value={values.description || ""}
+        onChange={handleInputChange}
       />
       <span className="popup__input-error description-input-error">
-        {errorMessageAbout}
+        {errors.description}
       </span>
     </PopupWithForm>
   );
