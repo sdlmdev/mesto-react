@@ -24,3 +24,5 @@
 * ООП
 * Webpack
 * API (GET, POST, PATCH, PUT, DELETE)
+
+### Статус проекта: завершен
